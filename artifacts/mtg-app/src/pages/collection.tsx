@@ -70,20 +70,20 @@ export default function Collection() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
-      <div className="flex items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="min-w-0">
           <h1 className="text-3xl font-serif font-bold tracking-tight mb-1">Collection</h1>
           <p className="text-muted-foreground">Browse and manage your card library.</p>
         </div>
-        <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={!cards?.length} className="shrink-0 mt-1">
+        <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={!cards?.length} className="w-full shrink-0 sm:mt-1 sm:w-auto">
           <Download className="h-4 w-4 mr-2" /> Export CSV
         </Button>
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-        <TabsList className="bg-card border border-card-border">
-          <TabsTrigger value="all">All Cards</TabsTrigger>
-          <TabsTrigger value="trade">Trade List</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 bg-card border border-card-border sm:inline-grid sm:w-auto">
+          <TabsTrigger value="all" className="px-3">All Cards</TabsTrigger>
+          <TabsTrigger value="trade" className="px-3">Trade List</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -97,9 +97,9 @@ export default function Collection() {
             className="pl-9 bg-card border-card-border focus-visible:ring-primary"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-[1fr_1fr_auto_auto] gap-2 sm:flex">
           <Select value={filterColor} onValueChange={setFilterColor}>
-            <SelectTrigger className="w-[130px] bg-card border-card-border">
+            <SelectTrigger className="w-full sm:w-[130px] bg-card border-card-border">
               <SelectValue placeholder="Color" />
             </SelectTrigger>
             <SelectContent>
@@ -114,7 +114,7 @@ export default function Collection() {
           </Select>
 
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[130px] bg-card border-card-border">
+            <SelectTrigger className="w-full sm:w-[130px] bg-card border-card-border">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -260,7 +260,7 @@ function CollectionCard({ card }: { card: any }) {
         <Button
           variant="secondary"
           size="icon"
-          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+          className="h-8 w-8 shadow-lg sm:h-7 sm:w-7 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100"
           onClick={e => { e.stopPropagation(); e.preventDefault(); setCounterOpen(true); }}
           title="Find counters"
         >
@@ -338,7 +338,7 @@ function AddToDeckButton({ card }: { card: any }) {
         <Button
           variant="secondary"
           size="icon"
-          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+          className="h-8 w-8 shadow-lg sm:h-7 sm:w-7 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100"
           onClick={e => { e.stopPropagation(); e.preventDefault(); setOpen(true); }}
           title="Add to deck"
         >

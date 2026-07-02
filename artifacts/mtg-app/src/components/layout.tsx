@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { BookOpen, Layers, PlusCircle, Scale, Menu, Wifi, WifiOff, User, MessageSquare, Heart } from "lucide-react";
+import { BookOpen, Layers, PlusCircle, Scale, Wifi, WifiOff, User, MessageSquare, Heart, Library, ScrollText } from "lucide-react";
 import { useHealthCheck, useGetSettings } from "@workspace/api-client-react";
 import {
   Sidebar,
@@ -22,11 +22,25 @@ const NAV_ITEMS = [
   { href: "/collection", label: "Collection", icon: Layers },
   { href: "/add-card", label: "Add Card", icon: PlusCircle },
   { href: "/decks", label: "Decks", icon: BookOpen },
-  { href: "/wishlist", label: "Wishlist", icon: BookOpen },
-  { href: "/sets", label: "Sets", icon: BookOpen },
-  { href: "/house-rules", label: "House Rules", icon: BookOpen },
+  { href: "/wishlist", label: "Wishlist", icon: Heart },
+  { href: "/sets", label: "Sets", icon: Library },
+  { href: "/house-rules", label: "House Rules", icon: ScrollText },
   { href: "/account", label: "Account", icon: User },
 ];
+
+const MOBILE_NAV_ITEMS = NAV_ITEMS.slice(0, 5);
+
+function isActiveRoute(current: string, href: string): boolean {
+  if (href === "/") {
+    return current === "/";
+  }
+
+  if (href === "/collection" && current.startsWith("/card/")) {
+    return true;
+  }
+
+  return current === href || current.startsWith(`${href}/`);
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -63,10 +77,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={location === item.href}
+                    isActive={isActiveRoute(location, item.href)}
                     className={cn(
                       "mx-2 mb-1",
-                      location === item.href
+                      isActiveRoute(location, item.href)
                         ? "bg-primary/10 text-primary hover:bg-primary/20"
                         : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     )}
@@ -114,15 +128,52 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </Sidebar>
 
         <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden">
-          <header className="h-14 flex items-center px-4 border-b border-border bg-card/50 backdrop-blur shrink-0 md:hidden">
-            <SidebarTrigger />
-            <span className="ml-4 font-serif font-bold text-primary">Grimoire</span>
+          <header className="h-14 flex items-center justify-between px-4 border-b border-border bg-card/80 backdrop-blur shrink-0 md:hidden">
+            <div className="flex items-center gap-3 min-w-0">
+              <SidebarTrigger className="h-9 w-9" />
+              <div className="min-w-0">
+                <span className="block font-serif font-bold text-primary leading-tight">Grimoire</span>
+                <span className="block truncate text-[11px] text-muted-foreground leading-tight">
+                  {settings?.displayName ?? "Collection Manager"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              {isError || health?.status !== "ok" ? (
+                <WifiOff className="h-4 w-4 text-destructive" />
+              ) : (
+                <Wifi className="h-4 w-4 text-emerald-500" />
+              )}
+            </div>
           </header>
-          <main className="flex-1 overflow-y-auto p-4 md:p-8">
-            <div className="max-w-6xl mx-auto h-full">
+          <main className="flex-1 overflow-y-auto px-3 py-4 pb-24 sm:px-4 md:p-8">
+            <div className="max-w-6xl mx-auto min-h-full">
               {children}
             </div>
           </main>
+          <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-sidebar/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:hidden">
+            <div className="mx-auto grid max-w-lg grid-cols-5 gap-1">
+              {MOBILE_NAV_ITEMS.map((item) => {
+                const isActive = isActiveRoute(location, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      "flex min-h-12 flex-col items-center justify-center gap-1 rounded-md px-1 text-[11px] font-medium transition-colors",
+                      isActive
+                        ? "bg-primary/15 text-primary"
+                        : "text-muted-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span className="max-w-full truncate">{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
         </div>
       </div>
 

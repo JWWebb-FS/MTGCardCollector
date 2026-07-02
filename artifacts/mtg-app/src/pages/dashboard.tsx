@@ -91,13 +91,13 @@ export default function Dashboard() {
   }));
 
   return (
-    <div className="space-y-8 pb-10 animate-in fade-in duration-500">
+    <div className="space-y-6 pb-10 animate-in fade-in duration-500 md:space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-serif font-bold tracking-tight mb-1">Vault Overview</h1>
+        <div className="min-w-0">
+          <h1 className="text-2xl font-serif font-bold tracking-tight mb-1 sm:text-3xl">Vault Overview</h1>
           <p className="text-muted-foreground">High-level statistics of your physical card library.</p>
         </div>
-        <Button variant="outline" onClick={handleRefreshPrices} disabled={refreshPricesMutation.isPending}>
+        <Button className="w-full sm:w-auto" variant="outline" onClick={handleRefreshPrices} disabled={refreshPricesMutation.isPending}>
           <RefreshCw className={`h-4 w-4 mr-2 ${refreshPricesMutation.isPending ? 'animate-spin' : ''}`} />
           Refresh Prices
         </Button>
@@ -110,7 +110,7 @@ export default function Dashboard() {
             <CardDescription className="flex items-center gap-2 font-medium">
               <Layers className="h-4 w-4 text-primary" /> Total Cards
             </CardDescription>
-            <CardTitle className="text-4xl font-serif">{stats.totalCards}</CardTitle>
+            <CardTitle className="text-3xl font-serif sm:text-4xl">{stats.totalCards}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">{stats.uniqueCards} unique prints</p>
@@ -123,7 +123,7 @@ export default function Dashboard() {
             <CardDescription className="flex items-center gap-2 font-medium">
               <TrendingUp className="h-4 w-4 text-emerald-500" /> Total Value
             </CardDescription>
-            <CardTitle className="text-4xl font-serif text-emerald-500">{formatPrice(stats.totalValue)}</CardTitle>
+            <CardTitle className="text-3xl font-serif text-emerald-500 sm:text-4xl">{formatPrice(stats.totalValue)}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">Based on current market prices</p>
@@ -136,7 +136,7 @@ export default function Dashboard() {
             <CardDescription className="flex items-center gap-2 font-medium">
               <Sparkles className="h-4 w-4 text-purple-500" /> Foil Value
             </CardDescription>
-            <CardTitle className="text-4xl font-serif text-purple-500">{formatPrice(stats.totalFoilValue)}</CardTitle>
+            <CardTitle className="text-3xl font-serif text-purple-500 sm:text-4xl">{formatPrice(stats.totalFoilValue)}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">Premium treatments</p>
@@ -150,7 +150,7 @@ export default function Dashboard() {
             <CardTitle className="font-serif">Color Distribution</CardTitle>
             <CardDescription>Breakdown by card color identity</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px]">
+          <CardContent className="h-[260px] sm:h-[300px]">
             {colorData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -186,10 +186,10 @@ export default function Dashboard() {
             <CardTitle className="font-serif">Top Sets</CardTitle>
             <CardDescription>Most collected expansions</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px]">
+          <CardContent className="h-[260px] sm:h-[300px]">
             {setData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={setData} layout="vertical" margin={{ left: 50, right: 20 }}>
+                <BarChart data={setData} layout="vertical" margin={{ left: 36, right: 12 }}>
                   <XAxis type="number" hide />
                   <YAxis dataKey="setCode" type="category" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-muted-foreground)' }} />
                   <Tooltip
@@ -212,7 +212,7 @@ export default function Dashboard() {
             <CardTitle className="font-serif">Collection Value History</CardTitle>
             <CardDescription>Total value over time — updated each time you refresh prices</CardDescription>
           </CardHeader>
-          <CardContent className="h-[280px]">
+          <CardContent className="h-[240px] sm:h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={historyData} margin={{ left: 10, right: 20, top: 10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.4} />
