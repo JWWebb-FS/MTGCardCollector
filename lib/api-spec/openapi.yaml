@@ -1,0 +1,1565 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: MTG Collection Manager API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: collection
+  - name: house-rules
+  - name: scryfall
+  - name: decks
+  - name: wishlist
+  - name: settings
+  - name: feedback
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /collection:
+    get:
+      operationId: listCollectionCards
+      tags: [collection]
+      summary: List all cards in collection
+      parameters:
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [name, set, color, cmc, type, price, quantity, addedAt]
+        - name: sortDir
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: filterColor
+          in: query
+          schema:
+            type: string
+        - name: filterType
+          in: query
+          schema:
+            type: string
+        - name: filterRarity
+          in: query
+          schema:
+            type: string
+        - name: minCmc
+          in: query
+          schema:
+            type: number
+        - name: maxCmc
+          in: query
+          schema:
+            type: number
+        - name: forTrade
+          in: query
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of collection cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CollectionCard"
+    post:
+      operationId: addCardToCollection
+      tags: [collection]
+      summary: Add a card to collection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCardToCollectionBody"
+      responses:
+        "201":
+          description: Card added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionCard"
+
+  /collection/stats:
+    get:
+      operationId: getCollectionStats
+      tags: [collection]
+      summary: Get collection statistics and total value
+      responses:
+        "200":
+          description: Collection stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionStats"
+
+  /collection/import-csv:
+    post:
+      operationId: importCollectionCsv
+      tags: [collection]
+      summary: Bulk import cards from CSV
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportCsvBody"
+      responses:
+        "200":
+          description: Import results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportCsvResult"
+
+  /collection/value-history:
+    get:
+      operationId: getCollectionValueHistory
+      tags: [collection]
+      summary: Get collection value snapshot history
+      responses:
+        "200":
+          description: Value history snapshots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ValueSnapshot"
+
+  /collection/refresh-prices:
+    post:
+      operationId: refreshCollectionPrices
+      tags: [collection]
+      summary: Refresh prices for all cards in collection from Scryfall
+      responses:
+        "200":
+          description: Refresh result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshPricesResult"
+
+  /collection/check-duplicate:
+    get:
+      operationId: checkDuplicate
+      tags: [collection]
+      summary: Check if a card already exists in the collection
+      parameters:
+        - name: scryfallId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Duplicate check result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DuplicateCheckResult"
+
+  /collection/{id}/price-history:
+    get:
+      operationId: getCardPriceHistory
+      tags: [collection]
+      summary: Get price history snapshots for a single collection card
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Price history snapshots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CardPriceSnapshot"
+
+  /collection/{id}:
+    get:
+      operationId: getCollectionCard
+      tags: [collection]
+      summary: Get a single collection card
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Collection card
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionCard"
+        "404":
+          description: Not found
+    put:
+      operationId: updateCollectionCard
+      tags: [collection]
+      summary: Update a card in the collection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCollectionCardBody"
+      responses:
+        "200":
+          description: Updated card
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionCard"
+    delete:
+      operationId: deleteCollectionCard
+      tags: [collection]
+      summary: Remove a card from collection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /house-rules:
+    get:
+      operationId: listHouseRules
+      tags: [house-rules]
+      summary: List all house rules
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of house rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HouseRule"
+    post:
+      operationId: createHouseRule
+      tags: [house-rules]
+      summary: Create a new house rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHouseRuleBody"
+      responses:
+        "201":
+          description: Created house rule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HouseRule"
+
+  /house-rules/{id}:
+    get:
+      operationId: getHouseRule
+      tags: [house-rules]
+      summary: Get a single house rule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: House rule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HouseRule"
+        "404":
+          description: Not found
+    put:
+      operationId: updateHouseRule
+      tags: [house-rules]
+      summary: Update a house rule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateHouseRuleBody"
+      responses:
+        "200":
+          description: Updated house rule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HouseRule"
+    delete:
+      operationId: deleteHouseRule
+      tags: [house-rules]
+      summary: Delete a house rule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /decks:
+    get:
+      operationId: listDecks
+      tags: [decks]
+      summary: List all decks
+      responses:
+        "200":
+          description: List of decks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Deck"
+    post:
+      operationId: createDeck
+      tags: [decks]
+      summary: Create a new deck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDeckBody"
+      responses:
+        "201":
+          description: Created deck
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deck"
+
+  /decks/{id}:
+    get:
+      operationId: getDeck
+      tags: [decks]
+      summary: Get a deck with its cards
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deck with cards
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeckDetail"
+        "404":
+          description: Not found
+    put:
+      operationId: updateDeck
+      tags: [decks]
+      summary: Update a deck
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDeckBody"
+      responses:
+        "200":
+          description: Updated deck
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deck"
+    delete:
+      operationId: deleteDeck
+      tags: [decks]
+      summary: Delete a deck
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /decks/{id}/import:
+    post:
+      operationId: importDecklist
+      tags: [decks]
+      summary: Import a deck from plain text decklist
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportDecklistBody"
+      responses:
+        "200":
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportDecklistResult"
+
+  /decks/{id}/cards:
+    post:
+      operationId: addCardToDeck
+      tags: [decks]
+      summary: Add a card to a deck
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCardToDeckBody"
+      responses:
+        "201":
+          description: Card added to deck
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeckCard"
+
+  /decks/{id}/cards/{cardId}:
+    put:
+      operationId: updateDeckCard
+      tags: [decks]
+      summary: Update a card in a deck
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDeckCardBody"
+      responses:
+        "200":
+          description: Updated deck card
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeckCard"
+    delete:
+      operationId: removeDeckCard
+      tags: [decks]
+      summary: Remove a card from a deck
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Removed
+
+  /wishlist:
+    get:
+      operationId: listWishlistItems
+      tags: [wishlist]
+      summary: List all wishlist items
+      responses:
+        "200":
+          description: Wishlist items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WishlistItem"
+    post:
+      operationId: addWishlistItem
+      tags: [wishlist]
+      summary: Add a card to the wishlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddWishlistItemBody"
+      responses:
+        "201":
+          description: Added wishlist item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WishlistItem"
+
+  /wishlist/refresh-prices:
+    post:
+      operationId: refreshWishlistPrices
+      tags: [wishlist]
+      summary: Refresh prices for all wishlist items
+      responses:
+        "200":
+          description: Refresh result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshPricesResult"
+
+  /wishlist/{id}:
+    put:
+      operationId: updateWishlistItem
+      tags: [wishlist]
+      summary: Update a wishlist item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateWishlistItemBody"
+      responses:
+        "200":
+          description: Updated wishlist item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WishlistItem"
+    delete:
+      operationId: deleteWishlistItem
+      tags: [wishlist]
+      summary: Remove a wishlist item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /scryfall/search:
+    get:
+      operationId: searchScryfallCards
+      tags: [scryfall]
+      summary: Search cards via Scryfall
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Scryfall search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScryfallSearchResult"
+
+  /scryfall/cards/{scryfallId}:
+    get:
+      operationId: getScryfallCard
+      tags: [scryfall]
+      summary: Get a card by Scryfall ID
+      parameters:
+        - name: scryfallId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Scryfall card
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScryfallCard"
+
+  /scryfall/cards/{scryfallId}/counters:
+    get:
+      operationId: getCounterCards
+      tags: [scryfall]
+      summary: Get cards that counter the given card, grouped by strategy
+      parameters:
+        - name: scryfallId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Counter card categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CounterCategory"
+
+  /scryfall/cards/{scryfallId}/prints:
+    get:
+      operationId: getCardPrints
+      tags: [scryfall]
+      summary: Get all prints/versions of a card
+      parameters:
+        - name: scryfallId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All prints of the card
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScryfallCard"
+
+  /scryfall/sets:
+    get:
+      operationId: listScryfallSets
+      tags: [scryfall]
+      summary: List all MTG sets
+      responses:
+        "200":
+          description: List of sets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MtgSet"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get user settings
+      responses:
+        "200":
+          description: User settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSettings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update user settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSettingsBody"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSettings"
+
+  /feedback:
+    get:
+      operationId: listFeedback
+      tags: [feedback]
+      summary: List all submitted feedback
+      responses:
+        "200":
+          description: List of feedback
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeedbackItem"
+    post:
+      operationId: submitFeedback
+      tags: [feedback]
+      summary: Submit feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitFeedbackBody"
+      responses:
+        "201":
+          description: Feedback submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackItem"
+
+  /scryfall/sets/{setCode}/cards:
+    get:
+      operationId: getSetCards
+      tags: [scryfall]
+      summary: Get all cards in a set for completion tracking
+      parameters:
+        - name: setCode
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Cards in the set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScryfallSearchResult"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    CollectionCard:
+      type: object
+      properties:
+        id:
+          type: integer
+        scryfallId:
+          type: string
+        name:
+          type: string
+        setCode:
+          type: string
+        setName:
+          type: string
+        collectorNumber:
+          type: string
+        version:
+          type: string
+        quantity:
+          type: integer
+        foil:
+          type: boolean
+        condition:
+          type: string
+          enum: [NM, LP, MP, HP, DMG]
+        colorIdentity:
+          type: array
+          items:
+            type: string
+        typeLine:
+          type: string
+        manaCost:
+          type: string
+        cmc:
+          type: number
+        imageUri:
+          type: string
+        priceUsd:
+          type: string
+          nullable: true
+        priceFoil:
+          type: string
+          nullable: true
+        legalities:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: string
+        notes:
+          type: string
+          nullable: true
+        storageLocation:
+          type: string
+          nullable: true
+        forTrade:
+          type: boolean
+        addedAt:
+          type: string
+      required:
+        - id
+        - scryfallId
+        - name
+        - setCode
+        - setName
+        - collectorNumber
+        - quantity
+        - foil
+        - condition
+        - forTrade
+        - colorIdentity
+        - typeLine
+        - addedAt
+
+    AddCardToCollectionBody:
+      type: object
+      properties:
+        scryfallId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+          default: 1
+        foil:
+          type: boolean
+          default: false
+        condition:
+          type: string
+          enum: [NM, LP, MP, HP, DMG]
+          default: NM
+        notes:
+          type: string
+      required: [scryfallId]
+
+    UpdateCollectionCardBody:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+        foil:
+          type: boolean
+        condition:
+          type: string
+          enum: [NM, LP, MP, HP, DMG]
+        notes:
+          type: string
+        storageLocation:
+          type: string
+        forTrade:
+          type: boolean
+
+    CollectionStats:
+      type: object
+      properties:
+        totalCards:
+          type: integer
+        uniqueCards:
+          type: integer
+        totalValue:
+          type: number
+        totalFoilValue:
+          type: number
+        colorBreakdown:
+          type: object
+          additionalProperties:
+            type: integer
+        setBreakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              setCode:
+                type: string
+              setName:
+                type: string
+              count:
+                type: integer
+            required: [setCode, setName, count]
+        mostValuableCards:
+          type: array
+          items:
+            $ref: "#/components/schemas/CollectionCard"
+      required:
+        - totalCards
+        - uniqueCards
+        - totalValue
+        - totalFoilValue
+        - colorBreakdown
+        - setBreakdown
+        - mostValuableCards
+
+    ImportCsvBody:
+      type: object
+      properties:
+        csvContent:
+          type: string
+          description: Raw CSV content to import
+        format:
+          type: string
+          enum: [moxfield, archidekt, generic]
+          default: generic
+          description: CSV format type
+      required: [csvContent]
+
+    ImportCsvResult:
+      type: object
+      properties:
+        imported:
+          type: integer
+        skipped:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: string
+        cards:
+          type: array
+          items:
+            $ref: "#/components/schemas/CollectionCard"
+      required: [imported, skipped, errors, cards]
+
+    RefreshPricesResult:
+      type: object
+      properties:
+        updated:
+          type: integer
+        failed:
+          type: integer
+        totalValue:
+          type: number
+      required: [updated, failed, totalValue]
+
+    DuplicateCheckResult:
+      type: object
+      properties:
+        exists:
+          type: boolean
+        existingCard:
+          $ref: "#/components/schemas/CollectionCard"
+          nullable: true
+      required: [exists]
+
+    HouseRule:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        officialRule:
+          type: string
+          nullable: true
+        officialRuleSource:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, title, description, category, isActive, createdAt, updatedAt]
+
+    CreateHouseRuleBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        officialRule:
+          type: string
+        officialRuleSource:
+          type: string
+        isActive:
+          type: boolean
+          default: true
+      required: [title, description, category]
+
+    UpdateHouseRuleBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        officialRule:
+          type: string
+        officialRuleSource:
+          type: string
+        isActive:
+          type: boolean
+
+    Deck:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        format:
+          type: string
+        colorIdentity:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        cardCount:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, name, format, colorIdentity, isActive, cardCount, createdAt, updatedAt]
+
+    DeckCard:
+      type: object
+      properties:
+        id:
+          type: integer
+        deckId:
+          type: integer
+        scryfallId:
+          type: string
+        name:
+          type: string
+        quantity:
+          type: integer
+        isCommander:
+          type: boolean
+        isSideboard:
+          type: boolean
+        inCollection:
+          type: boolean
+        cmc:
+          type: integer
+          nullable: true
+        typeLine:
+          type: string
+          nullable: true
+        imageUri:
+          type: string
+          nullable: true
+        addedAt:
+          type: string
+      required: [id, deckId, scryfallId, name, quantity, isCommander, isSideboard, inCollection, addedAt]
+
+    DeckDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        format:
+          type: string
+        colorIdentity:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        cards:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeckCard"
+        missingCards:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeckCard"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, name, format, colorIdentity, isActive, cards, missingCards, createdAt, updatedAt]
+
+    CreateDeckBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        format:
+          type: string
+          default: casual
+        colorIdentity:
+          type: array
+          items:
+            type: string
+      required: [name]
+
+    UpdateDeckBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        format:
+          type: string
+        colorIdentity:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+
+    AddCardToDeckBody:
+      type: object
+      properties:
+        scryfallId:
+          type: string
+        name:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+          default: 1
+        isCommander:
+          type: boolean
+          default: false
+        isSideboard:
+          type: boolean
+          default: false
+      required: [scryfallId, name]
+
+    UpdateDeckCardBody:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+        isCommander:
+          type: boolean
+        isSideboard:
+          type: boolean
+
+    WishlistItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        scryfallId:
+          type: string
+        name:
+          type: string
+        setCode:
+          type: string
+        setName:
+          type: string
+        collectorNumber:
+          type: string
+        typeLine:
+          type: string
+        manaCost:
+          type: string
+          nullable: true
+        colorIdentity:
+          type: array
+          items:
+            type: string
+        imageUri:
+          type: string
+          nullable: true
+        priceUsd:
+          type: string
+          nullable: true
+        priceFoil:
+          type: string
+          nullable: true
+        foil:
+          type: boolean
+        quantity:
+          type: integer
+        maxPrice:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        addedAt:
+          type: string
+      required: [id, scryfallId, name, setCode, setName, collectorNumber, typeLine, colorIdentity, foil, quantity, addedAt]
+
+    AddWishlistItemBody:
+      type: object
+      properties:
+        scryfallId:
+          type: string
+        foil:
+          type: boolean
+          default: false
+        quantity:
+          type: integer
+          minimum: 1
+          default: 1
+        maxPrice:
+          type: number
+        notes:
+          type: string
+      required: [scryfallId]
+
+    UpdateWishlistItemBody:
+      type: object
+      properties:
+        foil:
+          type: boolean
+        quantity:
+          type: integer
+          minimum: 1
+        maxPrice:
+          type: number
+        notes:
+          type: string
+
+    ScryfallCard:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        setCode:
+          type: string
+        setName:
+          type: string
+        collectorNumber:
+          type: string
+        typeLine:
+          type: string
+        manaCost:
+          type: string
+          nullable: true
+        cmc:
+          type: number
+        colorIdentity:
+          type: array
+          items:
+            type: string
+        oracleText:
+          type: string
+          nullable: true
+        imageUris:
+          type: object
+          nullable: true
+          properties:
+            small:
+              type: string
+            normal:
+              type: string
+            large:
+              type: string
+            art_crop:
+              type: string
+        prices:
+          type: object
+          properties:
+            usd:
+              type: string
+              nullable: true
+            usd_foil:
+              type: string
+              nullable: true
+        legalities:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: string
+        rarity:
+          type: string
+        artist:
+          type: string
+          nullable: true
+        flavorText:
+          type: string
+          nullable: true
+        printsSearchUri:
+          type: string
+          nullable: true
+      required: [id, name, setCode, setName, collectorNumber, typeLine, cmc, colorIdentity, rarity]
+
+    ScryfallSearchResult:
+      type: object
+      properties:
+        totalCards:
+          type: integer
+        hasMore:
+          type: boolean
+        nextPage:
+          type: integer
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScryfallCard"
+      required: [totalCards, hasMore, data]
+
+    ValueSnapshot:
+      type: object
+      properties:
+        id:
+          type: integer
+        totalValue:
+          type: number
+        foilValue:
+          type: number
+        cardCount:
+          type: integer
+        snapshotAt:
+          type: string
+      required: [id, totalValue, foilValue, cardCount, snapshotAt]
+
+    CardPriceSnapshot:
+      type: object
+      properties:
+        id:
+          type: integer
+        collectionCardId:
+          type: integer
+        priceUsd:
+          type: number
+          nullable: true
+        priceFoil:
+          type: number
+          nullable: true
+        capturedAt:
+          type: string
+      required: [id, collectionCardId, capturedAt]
+
+    CounterCard:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        typeLine:
+          type: string
+          nullable: true
+        manaCost:
+          type: string
+          nullable: true
+        oracleText:
+          type: string
+          nullable: true
+        imageUri:
+          type: string
+          nullable: true
+        priceUsd:
+          type: string
+          nullable: true
+      required: [id, name]
+
+    CounterCategory:
+      type: object
+      properties:
+        label:
+          type: string
+        description:
+          type: string
+        cards:
+          type: array
+          items:
+            $ref: "#/components/schemas/CounterCard"
+      required: [label, description, cards]
+
+    UserSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        displayName:
+          type: string
+        avatarUrl:
+          type: string
+          nullable: true
+        paypalEmail:
+          type: string
+          nullable: true
+        updatedAt:
+          type: string
+      required: [id, displayName, updatedAt]
+
+    UpdateSettingsBody:
+      type: object
+      properties:
+        displayName:
+          type: string
+        avatarUrl:
+          type: string
+          nullable: true
+        paypalEmail:
+          type: string
+          nullable: true
+
+    FeedbackItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        message:
+          type: string
+        rating:
+          type: integer
+          nullable: true
+        page:
+          type: string
+          nullable: true
+        submittedAt:
+          type: string
+      required: [id, message, submittedAt]
+
+    SubmitFeedbackBody:
+      type: object
+      properties:
+        message:
+          type: string
+        rating:
+          type: integer
+          nullable: true
+        page:
+          type: string
+          nullable: true
+      required: [message]
+
+    ImportDecklistBody:
+      type: object
+      properties:
+        decklist:
+          type: string
+          description: "Plain text decklist, one card per line: '4 Lightning Bolt' or '4x Lightning Bolt'"
+        section:
+          type: string
+          enum: [mainboard, sideboard, commander]
+          default: mainboard
+      required: [decklist]
+
+    ImportDecklistResult:
+      type: object
+      properties:
+        imported:
+          type: integer
+        failed:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: string
+        cards:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeckCard"
+      required: [imported, failed, errors, cards]
+
+    MtgSet:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        releasedAt:
+          type: string
+          nullable: true
+        setType:
+          type: string
+        cardCount:
+          type: integer
+        iconSvgUri:
+          type: string
+          nullable: true
+      required: [code, name, setType, cardCount]
