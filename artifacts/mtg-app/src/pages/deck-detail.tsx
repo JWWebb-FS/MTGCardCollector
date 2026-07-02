@@ -225,13 +225,13 @@ export default function DeckDetail() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild>
+        <div className="flex items-start gap-3 min-w-0 sm:items-center">
+          <Button variant="ghost" size="icon" asChild className="mt-0.5 shrink-0 sm:mt-0">
             <Link href="/decks"><ArrowLeft className="h-4 w-4" /></Link>
           </Button>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-3xl font-serif font-bold tracking-tight">{deck.name}</h1>
+              <h1 className="text-2xl font-serif font-bold tracking-tight sm:text-3xl">{deck.name}</h1>
               <Select
                 value={deck.format}
                 onValueChange={(format) => {
@@ -273,7 +273,7 @@ export default function DeckDetail() {
           </div>
         </div>
         <div className="sm:ml-auto flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleExport} disabled={!deck.cards?.length}>
+          <Button variant="outline" size="sm" onClick={handleExport} disabled={!deck.cards?.length} className="w-full sm:w-auto">
             <Copy className="h-4 w-4 mr-2" /> Export
           </Button>
         </div>
@@ -307,12 +307,12 @@ export default function DeckDetail() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
         {/* Add Cards Panel */}
-        <Card className="bg-card border-card-border overflow-hidden flex flex-col h-[700px]">
+        <Card className="bg-card border-card-border overflow-hidden flex flex-col h-[460px] sm:h-[560px] lg:h-[700px]">
           <div className="p-4 border-b border-border bg-muted/20">
             <h2 className="font-serif font-semibold text-lg mb-4">Add Cards</h2>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -323,7 +323,7 @@ export default function DeckDetail() {
                 />
               </div>
               <Select value={selectedSet} onValueChange={setSelectedSet}>
-                <SelectTrigger className="w-[140px] bg-card border-card-border">
+                <SelectTrigger className="w-full bg-card border-card-border sm:w-[140px]">
                   <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
                   <SelectValue placeholder="Set" />
                 </SelectTrigger>
@@ -361,7 +361,7 @@ export default function DeckDetail() {
                       size="icon"
                       onClick={() => handleAddCard(card.id, card.name)}
                       disabled={addCardMutation.isPending}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                      className="shrink-0 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100"
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
@@ -379,15 +379,15 @@ export default function DeckDetail() {
         {/* Deck Panel with Tabs */}
         <div className="flex flex-col gap-4">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-            <TabsList className="bg-card border border-card-border w-full flex-wrap h-auto gap-y-1 p-1">
-              <TabsTrigger value="list" className="flex-1">Card List</TabsTrigger>
-              <TabsTrigger value="curve" className="flex-1">
+            <TabsList className="bg-card border border-card-border w-full h-auto justify-start gap-1 overflow-x-auto p-1">
+              <TabsTrigger value="list" className="shrink-0">Card List</TabsTrigger>
+              <TabsTrigger value="curve" className="shrink-0">
                 <BarChart2 className="h-3.5 w-3.5 mr-1.5" /> Mana Curve
               </TabsTrigger>
-              <TabsTrigger value="legality" className="flex-1">
+              <TabsTrigger value="legality" className="shrink-0">
                 <ShieldCheck className="h-3.5 w-3.5 mr-1.5" /> Legality
               </TabsTrigger>
-              <TabsTrigger value="missing" className="flex-1 relative">
+              <TabsTrigger value="missing" className="shrink-0 relative">
                 Missing
                 {missingCount > 0 && (
                   <span className="ml-1.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
@@ -395,14 +395,14 @@ export default function DeckDetail() {
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="power" className="flex-1">
+              <TabsTrigger value="power" className="shrink-0">
                 <Gauge className="h-3.5 w-3.5 mr-1.5" /> Power Level
               </TabsTrigger>
             </TabsList>
           </Tabs>
 
           {activeTab === "list" && (
-            <div className="space-y-4 overflow-y-auto max-h-[640px] pr-1">
+            <div className="space-y-4 overflow-y-auto max-h-[560px] pr-1 lg:max-h-[640px]">
               {groupOrder
                 .filter(group => groupedCards[group]?.length > 0)
                 .map(group => (
@@ -415,14 +415,14 @@ export default function DeckDetail() {
                     </div>
                     <div className="divide-y divide-border">
                       {groupedCards[group].map((card: any) => (
-                        <div key={card.id} className="flex items-center justify-between p-3 hover:bg-muted/10 transition-colors group">
-                          <div className="flex items-center gap-3 overflow-hidden">
+                        <div key={card.id} className="flex items-center justify-between gap-2 p-3 hover:bg-muted/10 transition-colors group">
+                          <div className="flex min-w-0 items-center gap-2 sm:gap-3 overflow-hidden">
                             <div className="flex items-center gap-1 shrink-0">
-                              <Button variant="outline" size="icon" className="h-6 w-6 rounded-full" onClick={() => handleUpdateQuantity(card.id, card.quantity, -1)}>
+                              <Button variant="outline" size="icon" className="h-8 w-8 rounded-full sm:h-6 sm:w-6" onClick={() => handleUpdateQuantity(card.id, card.quantity, -1)}>
                                 <Minus className="h-3 w-3" />
                               </Button>
                               <span className="text-sm font-mono w-4 text-center">{card.quantity}</span>
-                              <Button variant="outline" size="icon" className="h-6 w-6 rounded-full" onClick={() => handleUpdateQuantity(card.id, card.quantity, 1)}>
+                              <Button variant="outline" size="icon" className="h-8 w-8 rounded-full sm:h-6 sm:w-6" onClick={() => handleUpdateQuantity(card.id, card.quantity, 1)}>
                                 <Plus className="h-3 w-3" />
                               </Button>
                             </div>
@@ -441,7 +441,7 @@ export default function DeckDetail() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6 text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                            className="h-8 w-8 text-destructive shrink-0 sm:h-6 sm:w-6 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100"
                             onClick={() => handleRemoveCard(card.id)}
                           >
                             <Trash2 className="h-3 w-3" />

@@ -114,17 +114,17 @@ export default function CardDetail() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => setLocation("/collection")}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex items-start gap-3 min-w-0 sm:items-center sm:gap-4">
+          <Button variant="ghost" size="icon" onClick={() => setLocation("/collection")} className="mt-0.5 shrink-0 sm:mt-0">
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-serif font-bold tracking-tight">{card.name}</h1>
+          <div className="min-w-0">
+            <h1 className="text-2xl font-serif font-bold tracking-tight sm:text-3xl">{card.name}</h1>
             <p className="text-muted-foreground">{card.setName} ({card.setCode.toUpperCase()}) #{card.collectorNumber}</p>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setShowCounters(true)} className="shrink-0">
+        <Button variant="outline" size="sm" onClick={() => setShowCounters(true)} className="w-full shrink-0 sm:w-auto">
           <Shield className="h-4 w-4 mr-2 text-primary" /> Find Counters
         </Button>
       </div>
@@ -135,9 +135,9 @@ export default function CardDetail() {
         onClose={() => setShowCounters(false)}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
         <div className="md:col-span-5 lg:col-span-4 flex flex-col gap-4">
-          <div className="aspect-[5/7] w-full rounded-2xl overflow-hidden shadow-2xl relative bg-muted">
+          <div className="mx-auto aspect-[5/7] w-full max-w-[280px] rounded-2xl overflow-hidden shadow-2xl relative bg-muted md:max-w-none">
             {card.imageUri ? (
               <img src={card.imageUri.replace("small", "large").replace("normal", "large")} alt={card.name} className="w-full h-full object-cover" />
             ) : (
@@ -158,16 +158,16 @@ export default function CardDetail() {
         <div className="md:col-span-7 lg:col-span-8 flex flex-col gap-6">
           <Card className="bg-card border-card-border">
             <CardContent className="p-6 space-y-6">
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <h2 className="text-xl font-serif font-semibold text-primary">Collection Details</h2>
                 {!isEditing ? (
-                  <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                  <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="w-full sm:w-auto">
                     Edit Details
                   </Button>
                 ) : (
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancel</Button>
-                    <Button size="sm" onClick={handleSave} disabled={updateMutation.isPending}>
+                  <div className="flex flex-col-reverse gap-2 sm:flex-row">
+                    <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="w-full sm:w-auto">Cancel</Button>
+                    <Button size="sm" onClick={handleSave} disabled={updateMutation.isPending} className="w-full sm:w-auto">
                       {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                       Save
                     </Button>
@@ -366,7 +366,7 @@ export default function CardDetail() {
           <div className="flex justify-end">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" className="text-destructive border-destructive/20 hover:bg-destructive/10">
+                <Button variant="outline" className="w-full text-destructive border-destructive/20 hover:bg-destructive/10 sm:w-auto">
                   <Trash2 className="h-4 w-4 mr-2" /> Remove from Collection
                 </Button>
               </AlertDialogTrigger>

@@ -21,12 +21,12 @@ export default function AddCard() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       <div>
-        <h1 className="text-3xl font-serif font-bold tracking-tight mb-1">Add Card</h1>
+        <h1 className="text-2xl font-serif font-bold tracking-tight mb-1 sm:text-3xl">Add Card</h1>
         <p className="text-muted-foreground">Search the multiverse and add physical cards to your vault.</p>
       </div>
 
       <Tabs defaultValue="search" className="w-full">
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 grid w-full grid-cols-2 sm:inline-grid sm:w-auto">
           <TabsTrigger value="search">Search</TabsTrigger>
           <TabsTrigger value="import">Bulk Import</TabsTrigger>
         </TabsList>
@@ -89,14 +89,14 @@ function SearchTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 max-w-3xl">
+      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 sm:max-w-3xl">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground sm:left-4 sm:h-5 sm:w-5" />
           <Input 
             placeholder="Search by card name (e.g. Black Lotus, Lightning Bolt)..." 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="pl-12 h-12 text-lg bg-card border-card-border focus-visible:ring-primary shadow-sm"
+            className="h-11 bg-card pl-10 text-base border-card-border focus-visible:ring-primary shadow-sm sm:h-12 sm:pl-12 sm:text-lg"
           />
         </div>
         <div className="w-full sm:w-64 shrink-0">
@@ -124,7 +124,7 @@ function SearchTab() {
       )}
 
       {debouncedQuery.length > 2 && !isSearching && searchResults?.data && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+        <div className="grid grid-cols-2 gap-3 mt-6 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6 lg:mt-8">
           {searchResults.data.map(card => {
             const inCollection = collectionScryfallIds.has(card.id);
             const qty = quantities[card.id] || 1;
@@ -146,9 +146,9 @@ function SearchTab() {
                       <Badge className="bg-emerald-500 hover:bg-emerald-600 border-none shadow-sm">In Collection</Badge>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
+                  <div className="absolute inset-x-2 bottom-2 flex flex-col items-center justify-center gap-2 rounded-lg bg-black/70 p-2 backdrop-blur transition-opacity sm:inset-0 sm:rounded-none sm:bg-black/60 sm:p-0 sm:opacity-0 sm:group-hover:opacity-100">
                     <div className="flex items-center gap-2 bg-background/80 backdrop-blur rounded-lg p-1" onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => handleUpdateQuantity(card.id, -1, e)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-8 sm:w-8" onClick={(e) => handleUpdateQuantity(card.id, -1, e)}>
                         <Minus className="h-4 w-4" />
                       </Button>
                       <span className="w-6 text-center font-mono">{qty}</span>
@@ -156,22 +156,22 @@ function SearchTab() {
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                    <Button variant="secondary" size="sm" className="pointer-events-none">
-                      <Plus className="h-4 w-4 mr-2" /> Add {qty > 1 ? `${qty} Prints` : 'Print'}
+                    <Button variant="secondary" size="sm" className="h-8 w-full pointer-events-none text-xs sm:w-auto">
+                      <Plus className="h-3.5 w-3.5 mr-1.5" /> Add {qty > 1 ? `${qty}` : 'Print'}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-background/80 backdrop-blur border-primary/50 text-primary hover:bg-primary/10"
+                      className="hidden bg-background/80 backdrop-blur border-primary/50 text-primary hover:bg-primary/10 sm:inline-flex"
                       onClick={e => { e.stopPropagation(); setCounterCard({ id: card.id, name: card.name }); }}
                     >
                       <Shield className="h-3.5 w-3.5 mr-1.5" /> Find Counters
                     </Button>
                   </div>
                 </div>
-                <CardContent className="p-3">
+                <CardContent className="p-2.5 sm:p-3">
                   <h3 className="font-semibold text-sm line-clamp-1">{card.name}</h3>
-                  <p className="text-xs text-muted-foreground">{card.setName}</p>
+                  <p className="text-xs text-muted-foreground line-clamp-1">{card.setName}</p>
                 </CardContent>
               </Card>
             );
@@ -275,15 +275,15 @@ function AddCardDialog({ scryfallId, onClose, initialQuantity = 1, ownedCount = 
 
   return (
     <Dialog open={!!scryfallId} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden bg-card border-card-border text-foreground">
+      <DialogContent className="max-h-[92dvh] w-[calc(100vw-1rem)] sm:max-w-[700px] p-0 overflow-hidden bg-card border-card-border text-foreground">
         {isPrintsLoading ? (
           <div className="h-64 flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : selectedPrint ? (
-          <div className="flex flex-col md:flex-row h-full max-h-[80vh]">
-            <div className="w-full md:w-1/2 bg-muted p-6 flex flex-col items-center justify-center shrink-0">
-              <div className="aspect-[5/7] w-full max-w-[240px] rounded-xl overflow-hidden shadow-xl relative">
+          <div className="flex max-h-[92dvh] flex-col md:max-h-[80vh] md:flex-row">
+            <div className="w-full md:w-1/2 bg-muted p-4 sm:p-6 flex flex-col items-center justify-center shrink-0">
+              <div className="aspect-[5/7] w-full max-w-[170px] rounded-xl overflow-hidden shadow-xl relative sm:max-w-[240px]">
                 {selectedPrint.imageUris?.normal ? (
                   <img src={selectedPrint.imageUris.normal} alt={selectedPrint.name} className="w-full h-full object-cover" />
                 ) : (
@@ -295,7 +295,7 @@ function AddCardDialog({ scryfallId, onClose, initialQuantity = 1, ownedCount = 
               </div>
             </div>
             
-            <div className="w-full md:w-1/2 p-6 overflow-y-auto flex flex-col gap-6">
+            <div className="w-full md:w-1/2 p-4 sm:p-6 overflow-y-auto flex flex-col gap-5 sm:gap-6">
               {success ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4">
                   <div className="w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mb-2">
@@ -354,7 +354,7 @@ function AddCardDialog({ scryfallId, onClose, initialQuantity = 1, ownedCount = 
                       </Select>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
                         <Label>Condition</Label>
                         <Select value={condition} onValueChange={setCondition}>
@@ -405,9 +405,9 @@ function AddCardDialog({ scryfallId, onClose, initialQuantity = 1, ownedCount = 
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-border flex justify-end gap-2 mt-auto">
-                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleAdd} disabled={addMutation.isPending} className="min-w-[120px]">
+                  <div className="pt-4 border-t border-border flex flex-col-reverse gap-2 mt-auto sm:flex-row sm:justify-end">
+                    <Button variant="ghost" onClick={onClose} className="w-full sm:w-auto">Cancel</Button>
+                    <Button onClick={handleAdd} disabled={addMutation.isPending} className="w-full sm:min-w-[120px] sm:w-auto">
                       {addMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add to Vault"}
                     </Button>
                   </div>
@@ -444,12 +444,12 @@ function ImportTab() {
 
   return (
     <Card className="bg-card border-card-border">
-      <CardContent className="p-6 space-y-6">
+      <CardContent className="p-4 space-y-6 sm:p-6">
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>CSV Format</Label>
             <Select value={format} onValueChange={(v: any) => setFormat(v)}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full sm:w-[240px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -475,7 +475,7 @@ function ImportTab() {
             />
           </div>
 
-          <Button onClick={handleImport} disabled={importMutation.isPending || !csvContent.trim()}>
+          <Button onClick={handleImport} disabled={importMutation.isPending || !csvContent.trim()} className="w-full sm:w-auto">
             {importMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
             Import Cards
           </Button>
@@ -484,7 +484,7 @@ function ImportTab() {
         {result && (
           <div className="mt-8 p-4 bg-muted/50 rounded-xl border border-border">
             <h3 className="font-semibold mb-4 text-lg">Import Results</h3>
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 gap-3 mb-6 sm:grid-cols-3 sm:gap-4">
               <div className="bg-card p-4 rounded-lg border border-border text-center">
                 <div className="text-2xl font-bold text-emerald-500">{result.imported}</div>
                 <div className="text-xs text-muted-foreground uppercase">Imported</div>
