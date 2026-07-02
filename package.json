@@ -6,6 +6,7 @@
     "preinstall": "node ./scripts/enforce-pnpm.cjs",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "codegen": "pnpm --filter @workspace/api-spec run codegen",
+    "dev": "pnpm -r --parallel --filter @workspace/api-server --filter @workspace/mtg-app run dev",
     "dev:api": "pnpm --filter @workspace/api-server run dev",
     "dev:app": "pnpm --filter @workspace/mtg-app run dev",
     "dev:mockup": "pnpm --filter @workspace/mockup-sandbox run dev",

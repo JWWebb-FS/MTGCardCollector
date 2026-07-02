@@ -58,12 +58,21 @@ MTG Card Collector is a pnpm workspace for managing a Magic: The Gathering colle
 
 The API defaults to port `5000`. The Vite app defaults to port `5173` and base path `/`.
 
+You can also run both dev servers together:
+
+```powershell
+pnpm run dev
+```
+
+During local browser development, the Vite app proxies `/api` requests to `VITE_API_PROXY_TARGET`, which defaults to `http://localhost:5000`. Leave `VITE_API_BASE_URL` unset for normal web development. Set it only when the browser cannot use the proxy, such as testing from another device on your network.
+
 ## Common Commands
 
 ```powershell
 pnpm run typecheck
 pnpm run build
 pnpm run codegen
+pnpm run dev
 pnpm run dev:api
 pnpm run dev:app
 ```
