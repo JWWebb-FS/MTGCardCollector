@@ -16,13 +16,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FunctionSearchSuggestions } from "@/components/function-search-suggestions";
 
 export default function AddCard() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       <div>
         <h1 className="text-2xl font-serif font-bold tracking-tight mb-1 sm:text-3xl">Add Card</h1>
-        <p className="text-muted-foreground">Search the multiverse and add physical cards to your vault.</p>
+        <p className="text-muted-foreground">
+          Search by card name or function, like counterspell, toxic, ramp, draw, or removal.
+        </p>
       </div>
 
       <Tabs defaultValue="search" className="w-full">
@@ -87,13 +90,18 @@ function SearchTab() {
     setSelectedScryfallId(id);
   };
 
+  const handleFunctionSearch = (value: string) => {
+    setQuery(value);
+    setDebouncedQuery(value);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 sm:max-w-3xl">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground sm:left-4 sm:h-5 sm:w-5" />
           <Input 
-            placeholder="Search by card name (e.g. Black Lotus, Lightning Bolt)..." 
+            placeholder="Search name or function, e.g. Counterspell, Toxic, Ramp..." 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="h-11 bg-card pl-10 text-base border-card-border focus-visible:ring-primary shadow-sm sm:h-12 sm:pl-12 sm:text-lg"
@@ -116,6 +124,8 @@ function SearchTab() {
           </Select>
         </div>
       </div>
+
+      <FunctionSearchSuggestions onSelect={handleFunctionSearch} />
 
       {isSearching && (
         <div className="flex justify-center py-20">

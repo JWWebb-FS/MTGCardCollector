@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FunctionSearchSuggestions } from "@/components/function-search-suggestions";
 
 const FORMAT_SIZES: Record<string, number> = {
   Standard: 60, Pioneer: 60, Modern: 60, Legacy: 60, Vintage: 60,
@@ -69,6 +70,11 @@ export default function DeckDetail() {
         toast({ title: "Card added" });
       }
     });
+  };
+
+  const handleFunctionSearch = (value: string) => {
+    setQuery(value);
+    setDebouncedQuery(value);
   };
 
   const handleUpdateQuantity = (cardId: number, currentQuantity: number, change: number) => {
@@ -316,7 +322,7 @@ export default function DeckDetail() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search cards..."
+                  placeholder="Search name or function..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   className="pl-9 bg-card border-card-border"
@@ -335,6 +341,7 @@ export default function DeckDetail() {
                 </SelectContent>
               </Select>
             </div>
+            <FunctionSearchSuggestions onSelect={handleFunctionSearch} className="mt-3" />
           </div>
 
           <div className="flex-1 overflow-y-auto p-4">

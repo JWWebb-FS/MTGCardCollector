@@ -51,6 +51,39 @@ export default defineConfig(async ({ mode }) => {
     build: {
       outDir: path.resolve(import.meta.dirname, "dist/public"),
       emptyOutDir: true,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes("node_modules")) {
+              return undefined;
+            }
+
+            const normalizedId = id.replace(/\\/g, "/");
+
+            if (normalizedId.includes("@radix-ui")) {
+              return "ui";
+            }
+
+            if (
+              normalizedId.includes("/react@") ||
+              normalizedId.includes("/react-dom@") ||
+              normalizedId.includes("/scheduler@")
+            ) {
+              return "react";
+            }
+
+            if (normalizedId.includes("@tanstack")) {
+              return "query";
+            }
+
+            if (normalizedId.includes("recharts") || normalizedId.includes("d3-")) {
+              return "charts";
+            }
+
+            return "vendor";
+          },
+        },
+      },
     },
     server: {
       port,

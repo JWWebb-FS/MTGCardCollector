@@ -4,6 +4,7 @@ import {
   GetScryfallCardParams,
   GetCardPrintsParams,
 } from "@workspace/api-zod";
+import { buildScryfallSearchQuery } from "../lib/cardFunctionSearch";
 
 const router = Router();
 const SCRYFALL_BASE = "https://api.scryfall.com";
@@ -52,9 +53,10 @@ router.get("/scryfall/search", async (req, res) => {
   }
 
   const { q, page = 1 } = parseResult.data;
+  const scryfallQuery = buildScryfallSearchQuery(q);
 
   try {
-    const url = `${SCRYFALL_BASE}/cards/search?q=${encodeURIComponent(q)}&page=${page}&order=name`;
+    const url = `${SCRYFALL_BASE}/cards/search?q=${encodeURIComponent(scryfallQuery)}&page=${page}&order=name`;
     const response = await fetch(url, {
       headers: { "User-Agent": "MTGCollectionManager/1.0" },
     });

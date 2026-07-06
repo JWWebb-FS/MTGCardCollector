@@ -9,6 +9,7 @@ import { formatPrice } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { FunctionSearchSuggestions } from "@/components/function-search-suggestions";
 
 export default function Wishlist() {
   const { data: items, isLoading } = useListWishlistItems();
@@ -196,6 +197,11 @@ function AddWishlistItemDialog({ trigger }: { trigger?: React.ReactNode }) {
     { query: { enabled: debouncedQuery.length > 2, queryKey: ["search", debouncedQuery] } }
   );
 
+  const handleFunctionSearch = (value: string) => {
+    setQuery(value);
+    setDebouncedQuery(value);
+  };
+
   const addMutation = useAddWishlistItem();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -223,12 +229,13 @@ function AddWishlistItemDialog({ trigger }: { trigger?: React.ReactNode }) {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search..."
+            placeholder="Search name or function, e.g. Toxic..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="pl-9"
           />
         </div>
+        <FunctionSearchSuggestions onSelect={handleFunctionSearch} />
         <div className="flex-1 overflow-y-auto">
           {isSearching ? (
             <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
